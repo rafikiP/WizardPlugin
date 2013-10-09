@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            name="Modelo REST "
+            id="WizardPlugin">
+      </category>
+      <wizard
+            name="Novo Modelo webservice"
+            icon="icons/sample.gif"
+            category="WizardPlugin"
+            class="br.ufba.wizardplugin.wizards.NovaClasseNewWizard"
+            id="br.ufba.wizardplugin.wizards.NovaClasseNewWizard">
+      </wizard>
+   </extension>
+
+</plugin>
