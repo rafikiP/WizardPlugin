@@ -71,7 +71,7 @@ public class NovaClasseWizardPage extends NewTypeWizardPage {
 			}
 		});*/
 		
-		createContainerControls(container, 4);
+		createContainerControls(container, 3);
 		createPackageControls(container, 4);
 		
 		label=new Label(container, SWT.NULL);
