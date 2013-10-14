@@ -15,6 +15,14 @@
             class="br.ufba.wizardplugin.wizards.NovaClasseNewWizard"
             id="br.ufba.wizardplugin.wizards.NovaClasseNewWizard">
       </wizard>
+      <wizard
+            category="WizardPlugin"
+            class="br.ufba.wizardplugin.wizards.NewProjectWizard"
+            icon="icons/sample.gif"
+            id="br.ufba.wizardplugin.wizards.NewProjectWizard"
+            name="Novo Modelo Projeto"
+            project="true">
+      </wizard>
    </extension>
 
 </plugin>

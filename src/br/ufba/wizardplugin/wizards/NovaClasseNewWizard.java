@@ -1,5 +1,6 @@
 package br.ufba.wizardplugin.wizards;
 
+import org.eclipse.jdt.ui.wizards.NewClassWizardPage;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
@@ -17,8 +18,6 @@ import org.eclipse.core.runtime.CoreException;
 
 import java.io.*;
 
-
-
 import org.eclipse.ui.*;
 import org.eclipse.ui.ide.IDE;
 
@@ -34,6 +33,7 @@ import org.eclipse.ui.ide.IDE;
 public class NovaClasseNewWizard extends Wizard implements INewWizard {
 	private NovaClasseWizardPage page;
 	private ISelection selection;
+	private NewClassWizardPage newClassPage;
 
 	/**
 	 * Constructor for NovaClasseNewWizard.
@@ -48,7 +48,9 @@ public class NovaClasseNewWizard extends Wizard implements INewWizard {
 	 */
 
 	public void addPages() {
-		page = new NovaClasseWizardPage(selection);
+		//page = new NovaClasseWizardPage(selection);
+		//addPage(page);
+		page=new NovaClasseWizardPage(selection);
 		addPage(page);
 	}
 
@@ -57,13 +59,15 @@ public class NovaClasseNewWizard extends Wizard implements INewWizard {
 	 * will create an operation and run it using wizard as execution context.
 	 */
 	public boolean performFinish() {
-		final String containerName = page.getContainerName();
-		final String fileName = page.getFileName();
+		final String className = page.getClassName();
+		final String packageName = page.getPackageText(); 
+		final String containerName= page.getPackageFragmentRootText();
+		//final String containerName=newClassPage.get
 		IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor)
 					throws InvocationTargetException {
 				try {
-					doFinish(containerName, fileName, monitor);
+					doFinish(className, packageName, monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} finally {
@@ -90,22 +94,22 @@ public class NovaClasseNewWizard extends Wizard implements INewWizard {
 	 * file.
 	 */
 
-	private void doFinish(String containerName, String fileName,
+	private void doFinish(String className, String packageName,
 			IProgressMonitor monitor) throws CoreException {
 		// create a sample file
-		monitor.beginTask("Creating " + fileName, 2);
+		monitor.beginTask("Creating " + className, 2);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IResource resource = root.findMember(new Path(containerName));
+		IResource resource = root.findMember(new Path(className));
 		if (!resource.exists() || !(resource instanceof IContainer)) {
-			throwCoreException("Container \"" + containerName
+			throwCoreException("Container \"" + className
 					+ "\" does not exist.");
 		}
 
 		IContainer container = (IContainer) resource;
-		final IFile file = container.getFile(new Path(fileName));
-		String classe = FilenameUtils.getBaseName(fileName);
+		final IFile file = container.getFile(new Path(className+".java"));
+		
 		try {
-			InputStream stream = openContentStream(classe);
+			InputStream stream = openContentStream(className);
 			if (file.exists()) {
 				file.setContents(stream, true, true, monitor);
 			} else {
@@ -133,7 +137,7 @@ public class NovaClasseNewWizard extends Wizard implements INewWizard {
 	 * We will initialize file contents with a sample text.
 	 */
 
-	private InputStream openContentStream(String classe) {
+	public InputStream openContentStream(String classe) {
 
 		final String newline = "\n"; // System.getProperty("line.separator");
 		String line;

@@ -3,10 +3,10 @@ package br.ufba.wizardplugin.wizards;
 
 
 import org.eclipse.core.resources.IContainer;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.ui.wizards.NewTypeWizardPage;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
@@ -31,10 +31,10 @@ import org.eclipse.ui.dialogs.ContainerSelectionDialog;
  * OR with the extension that matches the expected one (java).
  */
 
-public class NovaClasseWizardPage extends WizardPage {
+public class NovaClasseWizardPage extends NewTypeWizardPage {
 	private Text containerText;
 
-	private Text fileText;
+	private Text classNameText;
 
 	private ISelection selection;
 
@@ -44,9 +44,9 @@ public class NovaClasseWizardPage extends WizardPage {
 	 * @param pageName
 	 */
 	public NovaClasseWizardPage(ISelection selection) {
-		super("wizardPage");
-		setTitle("Multi-page Editor File");
-		setDescription("This wizard creates a new file with *.java extension that can be opened by a multi-page editor.");
+		super(true,"Novo Modelo");
+	setTitle("Novo Modelo de serviço");
+		setDescription("This wizard creates a new class");
 		this.selection = selection;
 	}
 
@@ -57,21 +57,29 @@ public class NovaClasseWizardPage extends WizardPage {
 		Composite container = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
 		container.setLayout(layout);
-		layout.numColumns = 3;
+		layout.numColumns = 4;
 		layout.verticalSpacing = 9;
 		Label label = new Label(container, SWT.NULL);
-		label.setText("&Container:");
+		//label.setText("&Container:");
 
-		containerText = new Text(container, SWT.BORDER | SWT.SINGLE);
+		/*containerText = new Text(container, SWT.BORDER | SWT.SINGLE);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		containerText.setLayoutData(gd);
 		containerText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				dialogChanged();
 			}
-		});
-
-		Button button = new Button(container, SWT.PUSH);
+		});*/
+		
+		createContainerControls(container, 4);
+		createPackageControls(container, 4);
+		
+		label=new Label(container, SWT.NULL);
+		label.setText("&Nome");
+		classNameText=new Text(container, SWT.BORDER|SWT.SINGLE);
+		
+		
+		/*Button button = new Button(container, SWT.PUSH);
 		button.setText("Browse...");
 		button.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -88,9 +96,9 @@ public class NovaClasseWizardPage extends WizardPage {
 			public void modifyText(ModifyEvent e) {
 				dialogChanged();
 			}
-		});
+		});*/
 		initialize();
-		dialogChanged();
+	//	dialogChanged();
 		setControl(container);
 	}
 
@@ -114,7 +122,7 @@ public class NovaClasseWizardPage extends WizardPage {
 				containerText.setText(container.getFullPath().toString());
 			}
 		}
-		fileText.setText("new_file.java");
+		//fileText.setText("new_file.java");
 	}
 
 	/**
@@ -137,12 +145,13 @@ public class NovaClasseWizardPage extends WizardPage {
 
 	/**
 	 * Ensures that both text fields are set.
+	 * 
 	 */
 
 	private void dialogChanged() {
 		IResource container = ResourcesPlugin.getWorkspace().getRoot()
 				.findMember(new Path(getContainerName()));
-		String fileName = getFileName();
+		String className = getClassName();
 
 		if (getContainerName().length() == 0) {
 			updateStatus("File container must be specified");
@@ -157,23 +166,23 @@ public class NovaClasseWizardPage extends WizardPage {
 			updateStatus("Project must be writable");
 			return;
 		}
-		if (fileName.length() == 0) {
+		if (className.length() == 0) {
 			updateStatus("File name must be specified");
 			return;
 		}
-		if (fileName.replace('\\', '/').indexOf('/', 1) > 0) {
+		if (className.replace('\\', '/').indexOf('/', 1) > 0) {
 			updateStatus("File name must be valid");
 			return;
 		}
-		int dotLoc = fileName.lastIndexOf('.');
+		int dotLoc = className.lastIndexOf('.');
 		if (dotLoc != -1) {
-			String ext = fileName.substring(dotLoc + 1);
+			String ext = className.substring(dotLoc + 1);
 			if (ext.equalsIgnoreCase("java") == false) {
 				updateStatus("File extension must be \"java\"");
 				return;
 			}
 		}
-		updateStatus(null);
+		updateStatus("");
 	}
 
 	private void updateStatus(String message) {
@@ -185,7 +194,7 @@ public class NovaClasseWizardPage extends WizardPage {
 		return containerText.getText();
 	}
 
-	public String getFileName() {
-		return fileText.getText();
+	public String getClassName() {
+		return classNameText.getText();
 	}
 }
