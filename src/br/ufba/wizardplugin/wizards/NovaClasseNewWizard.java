@@ -50,8 +50,9 @@ public class NovaClasseNewWizard extends Wizard implements INewWizard {
 	public void addPages() {
 		//page = new NovaClasseWizardPage(selection);
 		//addPage(page);
-		page=new NovaClasseWizardPage(selection);
-		addPage(page);
+		newClassPage=new NewClassWizardPage();
+		newClassPage.init((IStructuredSelection)selection);
+		addPage(newClassPage);
 	}
 
 	/**
@@ -59,15 +60,15 @@ public class NovaClasseNewWizard extends Wizard implements INewWizard {
 	 * will create an operation and run it using wizard as execution context.
 	 */
 	public boolean performFinish() {
-		final String className = page.getClassName();
-		final String packageName = page.getPackageText(); 
-		final String containerName= page.getPackageFragmentRootText();
+		final String className = newClassPage.getTypeName();
+		final String packageName = newClassPage.getPackageText(); 
+		final String sourceName= newClassPage.getPackageFragmentRootText();
 		//final String containerName=newClassPage.get
 		IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor)
 					throws InvocationTargetException {
 				try {
-					doFinish(className, packageName, monitor);
+					doFinish(className, sourceName,packageName, monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} finally {
@@ -94,14 +95,15 @@ public class NovaClasseNewWizard extends Wizard implements INewWizard {
 	 * file.
 	 */
 
-	private void doFinish(String className, String packageName,
+	private void doFinish(String className,String SourceName, String packageName,
 			IProgressMonitor monitor) throws CoreException {
 		// create a sample file
 		monitor.beginTask("Creating " + className, 2);
+		String filePath=SourceName+"/"+packageName.replace(".", "/");
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IResource resource = root.findMember(new Path(className));
+		IResource resource = root.findMember(new Path(filePath));
 		if (!resource.exists() || !(resource instanceof IContainer)) {
-			throwCoreException("Container \"" + className
+			throwCoreException("Container \"" + filePath
 					+ "\" does not exist.");
 		}
 
@@ -109,7 +111,7 @@ public class NovaClasseNewWizard extends Wizard implements INewWizard {
 		final IFile file = container.getFile(new Path(className+".java"));
 		
 		try {
-			InputStream stream = openContentStream(className);
+			InputStream stream = openContentStream(className,packageName);
 			if (file.exists()) {
 				file.setContents(stream, true, true, monitor);
 			} else {
@@ -137,7 +139,7 @@ public class NovaClasseNewWizard extends Wizard implements INewWizard {
 	 * We will initialize file contents with a sample text.
 	 */
 
-	public InputStream openContentStream(String classe) {
+	public InputStream openContentStream(String classe,String packageName) {
 
 		final String newline = "\n"; // System.getProperty("line.separator");
 		String line;
@@ -148,6 +150,7 @@ public class NovaClasseNewWizard extends Wizard implements INewWizard {
 		try {
 			while ((line = reader.readLine()) != null) {
 				line = line.replaceAll("\\$class", classe);
+				line=line.replaceAll("\\$package", packageName);
 				sb.append(line);
 				sb.append(newline);
 

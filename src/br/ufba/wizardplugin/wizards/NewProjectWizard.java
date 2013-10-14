@@ -168,7 +168,7 @@ public class NewProjectWizard extends Wizard implements INewWizard,
 			addFileToProject(
 					container,
 					new Path("teste.java"),
-					Novaclasse.openContentStream("teste"), monitor);
+					Novaclasse.openContentStream("teste","br.teste.teste"), monitor);
 
 			/* Add the style folder and the site.css file to it */
 			final IFolder styleFolder = container.getFolder(new Path("styles"));
