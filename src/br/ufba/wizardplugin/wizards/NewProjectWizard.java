@@ -1,9 +1,12 @@
 package br.ufba.wizardplugin.wizards;
 
-import java.io.IOException;
+
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -16,12 +19,15 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExecutableExtension;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
@@ -44,7 +50,7 @@ public class NewProjectWizard extends Wizard implements INewWizard,
 
 	private IWorkbench workbench;
 
-	private IStructuredSelection selection;
+	//private IStructuredSelection selection;
 
 	private IProject project;
 
@@ -147,7 +153,7 @@ public class NewProjectWizard extends Wizard implements INewWizard,
 			OperationCanceledException {
 		try {
 
-			monitor.beginTask("", 2000);
+			monitor.beginTask("", 4000);
 
 			proj.create(description, new SubProgressMonitor(monitor, 1000));
 
@@ -158,13 +164,39 @@ public class NewProjectWizard extends Wizard implements INewWizard,
 			proj.open(IResource.BACKGROUND_REFRESH, new SubProgressMonitor(
 					monitor, 1000));
 
+			IJavaProject javaProject = JavaCore.create(proj);
+			
+			
+			description.setNatureIds(new String[]{JavaCore.NATURE_ID});
+			proj.setDescription(description,null);
+			
+			IClasspathEntry[] rawClassPath = javaProject.getRawClasspath();
+			
+			List classPath = new ArrayList(
+			Arrays.asList(rawClassPath));
+			classPath.add(JavaRuntime.getDefaultJREContainerEntry());
+			IClasspathEntry[] a= (IClasspathEntry[]) classPath.toArray();
+			//rawClassPath=(IClasspathEntry[]) classPath.toArray();
+			javaProject.setRawClasspath(a, new SubProgressMonitor(monitor, 1000));
+			
+			boolean force = true;
+			boolean local = true;
+			IFolder binFolder = project.getFolder("bin");
+			binFolder.create(force,local, new SubProgressMonitor(monitor, 1000));
+			IPath fullPath = binFolder.getFullPath();
+			javaProject.setOutputLocation(fullPath, new SubProgressMonitor(monitor, 1000));
+
+			
+			
+			
+
 			/*
 			 * Okay, now we have the project and we can do more things with it
 			 * before updating the perspective.
 			 */
 			IContainer container = (IContainer) proj;
 			NovaClasseNewWizard Novaclasse= new NovaClasseNewWizard();
-			/* Add an XHTML file */
+			/* Add a file */
 			addFileToProject(
 					container,
 					new Path("teste.java"),
@@ -174,6 +206,7 @@ public class NewProjectWizard extends Wizard implements INewWizard,
 			final IFolder styleFolder = container.getFolder(new Path("styles"));
 			styleFolder.create(true, true, monitor);
 
+			/* Add a source folder*/
 			
 
 			/*

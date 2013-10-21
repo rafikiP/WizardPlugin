@@ -93,15 +93,28 @@ public class NovaClasseNewWizard extends Wizard implements INewWizard {
 	 * The worker method. It will find the container, create the file if missing
 	 * or just replace its contents, and open the editor on the newly created
 	 * file.
+	 * @throws CoreException 
 	 */
 
+	
+	public void prepare(IFolder folder) throws CoreException {
+	    if (!folder.exists()) {
+	        prepare((IFolder) folder.getParent());
+	        folder.create(false, false, null);
+	    }
+	}
+	
 	private void doFinish(String className,String SourceName, String packageName,
 			IProgressMonitor monitor) throws CoreException {
 		// create a sample file
 		monitor.beginTask("Creating " + className, 2);
 		String filePath=SourceName+"/"+packageName.replace(".", "/");
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IFolder folder= root.getFolder(new Path(filePath));
+		prepare(folder);
 		IResource resource = root.findMember(new Path(filePath));
+		
+		
 		if (!resource.exists() || !(resource instanceof IContainer)) {
 			throwCoreException("Container \"" + filePath
 					+ "\" does not exist.");
