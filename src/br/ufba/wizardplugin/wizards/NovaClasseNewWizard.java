@@ -5,6 +5,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.core.internal.resources.Project;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jface.operation.*;
 import org.apache.commons.io.FilenameUtils;
@@ -99,7 +100,15 @@ public class NovaClasseNewWizard extends Wizard implements INewWizard {
 	
 	public void prepare(IFolder folder) throws CoreException {
 	    if (!folder.exists()) {
-	        prepare((IFolder) folder.getParent());
+	    	IFolder f;
+	    	try
+	    	{
+	    		 f=(IFolder) folder.getParent();
+	    	}catch(Exception e) {
+	    		folder.create(false, false, null);
+	    		return;
+	    	}
+	        prepare(f);
 	        folder.create(false, false, null);
 	    }
 	}
@@ -109,9 +118,16 @@ public class NovaClasseNewWizard extends Wizard implements INewWizard {
 		// create a sample file
 		monitor.beginTask("Creating " + className, 2);
 		String filePath=SourceName+"/"+packageName.replace(".", "/");
+	//	if(!SourceName.contains("src"))
+	//	{
+	//		throwCoreException("No src folder found!");
+	//		return;
+	//	}
+		
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IFolder folder= root.getFolder(new Path(filePath));
 		prepare(folder);
+	
 		IResource resource = root.findMember(new Path(filePath));
 		
 		
