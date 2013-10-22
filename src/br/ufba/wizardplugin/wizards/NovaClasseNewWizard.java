@@ -32,7 +32,7 @@ import org.eclipse.ui.ide.IDE;
  */
 
 public class NovaClasseNewWizard extends Wizard implements INewWizard {
-	private NovaClasseWizardPage page;
+	private NewModelWizardPage page;
 	private ISelection selection;
 	private NewClassWizardPage newClassPage;
 
@@ -49,8 +49,8 @@ public class NovaClasseNewWizard extends Wizard implements INewWizard {
 	 */
 
 	public void addPages() {
-		//page = new NovaClasseWizardPage(selection);
-		//addPage(page);
+		page = new NewModelWizardPage(true,"Novo Modelo",(IStructuredSelection)selection);
+		addPage(page);
 		newClassPage=new NewClassWizardPage();
 		newClassPage.init((IStructuredSelection)selection);
 		addPage(newClassPage);
